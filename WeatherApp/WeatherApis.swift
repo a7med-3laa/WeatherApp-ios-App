@@ -12,14 +12,47 @@ import Foundation
 class WeatherApi{
    
     
-    func getCurrentWeather(in city:String,withCompletttion: @escaping (_ result:CurrentWeather?,_ err:Error?)->Void) {
+    func getCurrentWeather(in city:String,withCompletttion: @escaping (_ result:CurrentWeather?,_ forecast:ForecastWeather?,_ err:Error?)->Void) {
         let url=Constant.CURRENT_WEATHER_URL+city
-        getData(with: url, model: CurrentWeather.self, withCompletttion: withCompletttion)
+        getData(with: url, model: CurrentWeather.self){weather2,err in
+            if(err == nil){
+                self.getData(with: "\(Constant.FORECAST_WEATHER_URL)\(weather2!.name!)", model: ForecastWeather.self){forecastWeather,err in
+                    if(err==nil){
+                        withCompletttion(weather2,forecastWeather,err)
+                        
+                    }
+                    else{
+                        withCompletttion(nil,nil,err)
+                        
+                    }
+            }
+            }
+            else{
+                withCompletttion(nil,nil,err)
+            }
+        }
     }
     
-    func getCurrentWeather(lat:Double ,lng:Double,withCompletttion: @escaping (_ result:CurrentWeather?,_ err:Error?)->Void) {
+    
+    func getCurrentWeather(lat:Double ,lng:Double,withCompletttion: @escaping (_ result:CurrentWeather?,_ forecast:ForecastWeather?,_ err:Error?)->Void) {
         let url=String(format: Constant.CURRENT_WEATHER_URL_GEOLOCATION, lat,lng)
-        getData(with: url, model: CurrentWeather.self, withCompletttion: withCompletttion)
+        getData(with: url, model: CurrentWeather.self){weather2,err in
+            if(err == nil){
+                self.getData(with: "\(Constant.FORECAST_WEATHER_URL)\(weather2!.name!)", model: ForecastWeather.self){forecastWeather,err in
+                    if(err==nil){
+                        withCompletttion(weather2,forecastWeather,err)
+                        
+                    }
+                    else{
+                        withCompletttion(nil,nil,err)
+                        
+                    }
+            }
+            }
+            else{
+                withCompletttion(nil,nil,err)
+            }
+        }
     }
     
    
@@ -52,5 +85,6 @@ class WeatherApi{
         
         urlSession.resume()
     }
-    
+
 }
+
